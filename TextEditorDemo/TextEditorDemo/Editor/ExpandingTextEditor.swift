@@ -351,6 +351,13 @@ class ExpandingTextEditor: UIView {
         return self.txtVEditor.text
     }
 
+    // here are set the number of lines if need to pass the value via code or change the run time ot according to UI requirement we need to use this method.
+    public func setNumberOfLines(lines: Int) {
+        self.maxLinesNum = lines
+        self.setupScrolling()
+        updateViews(animated: true)
+    }
+    
 }
 
 extension ExpandingTextEditor: UITextViewDelegate {
