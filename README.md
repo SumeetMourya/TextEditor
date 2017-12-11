@@ -26,4 +26,10 @@
 
 ***
 
+## Constraints
+
+For more details about the constriants check the file Header: [File Link](https://github.com/9SumeetMourya/TextEditor/blob/master/TextEditorDemo/TextEditorDemo/Editor/ExpandingTextEditor.swift)
+
+***
+
 ## Check the Video:[Video](https://gfycat.com/gifs/detail/ThreadbareBewitchedHyena)
