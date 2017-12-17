@@ -21,8 +21,15 @@ class ViewController: UIViewController {
         
         editingView.delegate = self
         editingView.setEditorTextValue = ""
+//        editingView.txtVEditor.layer.cornerRadius = 3
+//        editingView.txtVEditor.layer.masksToBounds = true
+//        editingView.txtVEditor.backgroundColor = UIColor.yellow
         editingView.setPreviewModeOfEditor(previewMode: true)
         editingView.setHideCharacterLimit(value: false)
+        editingView.setFontToSendButton(font: UIFont(name: "HelveticaNeue", size: 14.0)!)
+        editingView.setTextToSendButton(text: "Send", selected: false)
+        editingView.setHideSendBTN(isHidden: false)
+        editingView.setTextColorToSendButton(color: UIColor.purple)
         lblNumberOfLines.text = "\(editingView.maxLinesNum)"
         lblPreviewModeDescription.text = "In Preview mode you can not edit text"
         lineSlider.value = Float(editingView.maxLinesNum)
@@ -32,6 +39,10 @@ class ViewController: UIViewController {
         super.didReceiveMemoryWarning()
     }
 
+    @IBAction func actionOnShowSendBTN(_ sender: UISwitch) {
+        editingView.setHideSendBTN(isHidden: !sender.isOn)
+    }
+    
     @IBAction func actionOnCharacterLimit(_ sender: UISwitch) {
         editingView.setHideCharacterLimit(value: !sender.isOn)
     }
@@ -59,6 +70,11 @@ class ViewController: UIViewController {
 
 
 extension ViewController: ExpandingTextEditorDelegate{
+    
+    func handleSendBTNAction(textValue: String) {
+        
+    }
+    
     func textModified(textValue: String) {
         
     }

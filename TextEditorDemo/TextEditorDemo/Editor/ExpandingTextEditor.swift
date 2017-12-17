@@ -31,13 +31,16 @@
  |   i  |                                                             |  |    i   |
  |   n  --------------------------------------------------------------- ---   n   |
  |   g                layoutVerticalGapBTWLimitTXT2Saperator                  g   |
- |                                      ------------------------------- ___       |
- |                                     |      (Character Limit Text)  |  |--------->layoutRightPadding2LimitText
- |                                     -------------------------------- ---       |
- |                          layoutBottomPadding                                   |
- ----------------------------------------------------------------------------------
- */
-
+ |                                     -------------------------------- ___       |
+ |                                     |      (Character Limit Text)  |  |--------->layoutCharacterLimitHeight
+ |                                     -------------------------------|-----------|
+ |                                                                           ^    |
+ |                          layoutBottomPadding                              |    |
+ ----------------------------------------------------------------------------|-----
+                                                                             |
+                                                                             |
+                                                                layoutRightPadding2LimitText
+*/
 
 
 import UIKit
@@ -47,6 +50,7 @@ protocol ExpandingTextEditorDelegate : class, NSObjectProtocol {
     func textModified(textValue: String)
     func textEditingDone(textValue: String)
     func textEditingStarted(textValue: String)
+    func handleSendBTNAction(textValue: String)
 
 }
 
@@ -56,11 +60,13 @@ class ExpandingTextEditor: UIView {
 
     var minimumHeightOfTxtEditor: CGFloat = 0
     var delegate: ExpandingTextEditorDelegate?
+    private var isHiddenCharacterLimitText: Bool = false
 
     @IBOutlet var txtVEditor: UITextView!
     @IBOutlet var lblCharactersLimit: UILabel!
     @IBOutlet var placeholderLabel: UILabel!
     @IBOutlet var vSepratorViewBTWTextView2LimitView: UIView!
+    @IBOutlet var sendBTN: UIButton!
 
     @IBOutlet var layoutTopPadding: NSLayoutConstraint!
     @IBOutlet var layoutLeftPadding: NSLayoutConstraint!
@@ -72,6 +78,8 @@ class ExpandingTextEditor: UIView {
     @IBOutlet var layoutSaperatorViewHeight: NSLayoutConstraint!
     @IBOutlet var layoutMinimumHeightOfEditor: NSLayoutConstraint!
     @IBOutlet var layoutExactHeightOfEditingArea: NSLayoutConstraint!
+    @IBOutlet var layoutCharacterLimitHeight: NSLayoutConstraint!
+    @IBOutlet var layoutSendButtonWidth: NSLayoutConstraint!
     
     @IBInspectable public var topPadding: CGFloat = 5.0
     @IBInspectable public var leftPadding: CGFloat = 5.0
@@ -82,7 +90,8 @@ class ExpandingTextEditor: UIView {
     @IBInspectable public var minLinesNum: Int = 1
     @IBInspectable public var previewMode: Bool = false
     @IBInspectable public var hideSaperatorView: Bool = false
-    
+    @IBInspectable public var sendButtonWidth: CGFloat = 5.0
+
     @IBInspectable public var textColor: UIColor = UIColor.black
     @IBInspectable public var placeHolderTextColor: UIColor = UIColor.black
     @IBInspectable public var charLimitTextColor: UIColor = UIColor.black
@@ -90,7 +99,7 @@ class ExpandingTextEditor: UIView {
 
     @IBInspectable public var heightSaperator: Int = 1
     @IBInspectable public var topPinOfCharLimit: CGFloat = 5.0
-    @IBInspectable public var numCharLimit: Int = 100
+    @IBInspectable public var numberOfCharaters: Int = 100
     
     /// The text that appears as a placeholder when the text view is empty
     @IBInspectable public var placeholder : String = "Place Holder..."
@@ -98,6 +107,12 @@ class ExpandingTextEditor: UIView {
     @IBInspectable public var fontNameEditor : String = "HelveticaNeue"
     @IBInspectable public var fontSizeCharLimit : CGFloat = 10.0
     @IBInspectable public var fontNameCharLimit : String = "HelveticaNeue"
+    
+    //action On Send button
+    @IBAction func actionOnSendButton(_ sender: UIButton) {
+        self.endEditing(true)
+        self.delegate?.handleSendBTNAction(textValue: txtVEditor.text)
+    }
     
     // MARK: - Initializers
     override func awakeFromNib() {
@@ -141,7 +156,8 @@ class ExpandingTextEditor: UIView {
         //set initial value for color to textView, Place holder Text and character limit text value set in xib
         self.setTextColor()
 
-        self.lblCharactersLimit.text = "\(numCharLimit)"
+        self.layoutCharacterLimitHeight.isActive = !self.isHiddenCharacterLimitText
+        self.lblCharactersLimit.text = self.isHiddenCharacterLimitText ? "" : "\(numberOfCharaters)"
         
         self.layoutMinimumHeightOfEditor.constant = (ceil(self.txtVEditor.font!.lineHeight) * CGFloat(minLinesNum)) + txtVEditor.textContainerInset.top + txtVEditor.textContainerInset.bottom
         minimumHeightOfTxtEditor = (ceil(self.txtVEditor.font!.lineHeight) * CGFloat(minLinesNum)) + txtVEditor.textContainerInset.top + txtVEditor.textContainerInset.bottom
@@ -156,6 +172,11 @@ class ExpandingTextEditor: UIView {
         self.placeholderLabel.text = placeholder
 
         self.setupScrolling()
+        
+        if self.numberOfCharaters <= 0 {
+            self.isHiddenCharacterLimitText = true
+            self.updateLimitOfCharactors()
+        }
     }
     
     override init(frame: CGRect) {
@@ -191,13 +212,15 @@ class ExpandingTextEditor: UIView {
 
     private func setupScrolling() {
 
-        let roundedHeight = roundHeight()
+        var roundedHeight = roundHeight()
+         roundedHeight = roundHeight()
         self.placeholderLabel.isHidden = self.shouldHidePlaceholder()
 
         var maxHeight:CGFloat = 0.0
         if maxLinesNum > 0 {
             maxHeight = (ceil(self.txtVEditor.font!.lineHeight) * CGFloat(maxLinesNum)) + txtVEditor.textContainerInset.top + txtVEditor.textContainerInset.bottom
         } else {
+             roundedHeight = roundHeight()
             maxHeight = roundedHeight
         }
         
@@ -286,9 +309,13 @@ class ExpandingTextEditor: UIView {
     fileprivate func updateLimitOfCharactors() {
         let totalLength = self.txtVEditor.text.count
         
-        if totalLength <= self.numCharLimit {
-            self.lblCharactersLimit.text = "\(totalLength) / \(self.numCharLimit)"
+        if totalLength <= self.numberOfCharaters {
+            self.lblCharactersLimit.text = self.isHiddenCharacterLimitText ? "" : "\(totalLength) / \(self.numberOfCharaters)"
+        } else {
+            self.lblCharactersLimit.text = self.isHiddenCharacterLimitText ? "" : "\(totalLength) / \(self.numberOfCharaters)"
         }
+
+        self.layoutCharacterLimitHeight.isActive = !self.isHiddenCharacterLimitText
     }
 
     // here we are setting the Color of the Active text editing to the separator
@@ -329,7 +356,8 @@ class ExpandingTextEditor: UIView {
     
     // Hide/show the Character Limit label of the control
     public func setHideCharacterLimit(value: Bool) {
-        self.lblCharactersLimit.text = value ? "" : "\(self.txtVEditor.text.count) / \(self.numCharLimit)"
+        self.isHiddenCharacterLimitText = value
+        self.updateLimitOfCharactors()
     }
     
     //Update the UI with animation after text editing.
@@ -358,6 +386,40 @@ class ExpandingTextEditor: UIView {
         updateViews(animated: true)
     }
     
+    // set Hide/show Send Button of the control
+    public func setHideSendBTN(isHidden: Bool) {
+        self.sendBTN.isHidden = isHidden
+        self.layoutSendButtonWidth.constant = isHidden ? 0.0 : self.sendButtonWidth
+    }
+    
+    // set Image Color to Send Button
+    public func setImageToSendButton(image: UIImage, selected: Bool) {
+        if selected {
+            self.sendBTN.setImage(image, for: .selected)
+        } else {
+            self.sendBTN.setImage(image, for: .normal)
+        }
+    }
+
+    // set title to Send Button
+    public func setTextToSendButton(text: String, selected: Bool) {
+        if selected {
+            self.sendBTN.setTitle(text, for: .selected)
+        } else {
+            self.sendBTN.setTitle(text, for: .normal)
+        }
+    }
+
+    // set font to Send Button title
+    public func setFontToSendButton(font: UIFont) {
+        self.sendBTN.titleLabel?.font = font
+    }
+
+    // set Text Color to Send Button
+    public func setTextColorToSendButton(color: UIColor) {
+        self.sendBTN.setTitleColor(color, for: .normal)
+    }
+
 }
 
 extension ExpandingTextEditor: UITextViewDelegate {
@@ -398,7 +460,7 @@ extension ExpandingTextEditor: UITextViewDelegate {
         
         let totalLength = textView.text.count + text.count
         
-        if totalLength <= self.numCharLimit {
+        if totalLength <= self.numberOfCharaters || self.isHiddenCharacterLimitText {
             shouldChange = true
         }
         return shouldChange
