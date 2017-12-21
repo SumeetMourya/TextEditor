@@ -210,6 +210,7 @@ class ExpandingTextEditor: UIView {
         return view
     }
 
+    /*
     private func setupScrolling() {
 
         var roundedHeight = roundHeight()
@@ -247,7 +248,41 @@ class ExpandingTextEditor: UIView {
         
         self.setNeedsDisplay()
         self.placeholderLabel.isHidden = self.shouldHidePlaceholder()
+    }*/
+    
+    
+    fileprivate func setupScrolling() {
+        
+        let roundedHeight = roundHeight()
+
+        var maxHeight:CGFloat = 0.0
+        if maxLinesNum > 0 {
+            maxHeight = (self.txtVEditor.font!.lineHeight) * CGFloat(maxLinesNum) + txtVEditor.textContainerInset.top + txtVEditor.textContainerInset.bottom
+        } else {
+            maxHeight = roundedHeight
+        }
+        
+        if roundedHeight <= minimumHeightOfTxtEditor {
+            self.layoutMinimumHeightOfEditor.constant = minimumHeightOfTxtEditor
+            self.layoutMinimumHeightOfEditor.isActive = true
+            self.layoutExactHeightOfEditingArea.isActive = false
+            txtVEditor.isScrollEnabled = false
+        } else if roundedHeight > maxHeight {
+            self.layoutExactHeightOfEditingArea.constant = ceil(maxHeight)
+            self.layoutMinimumHeightOfEditor.isActive = false
+            self.layoutExactHeightOfEditingArea.isActive = true
+            txtVEditor.isScrollEnabled = true
+        } else {
+            self.layoutMinimumHeightOfEditor.constant = roundedHeight
+            self.layoutMinimumHeightOfEditor.isActive = true
+            self.layoutExactHeightOfEditingArea.isActive = false
+            txtVEditor.isScrollEnabled = false
+        }
+        
+        self.setNeedsDisplay()
+        self.placeholderLabel.isHidden = self.shouldHidePlaceholder()
     }
+    
 
     /**
      Determines if the placeholder should be hidden dependant on whether it was set and if there is text in the text view
@@ -267,20 +302,27 @@ class ExpandingTextEditor: UIView {
      Calculates the correct height for the text currently in the textview as we cannot rely on contentsize to do the right thing
      */
     private func roundHeight() -> CGFloat {
+        /*
         var newHeight: CGFloat = 0
         
         if let font = self.txtVEditor.font {
             let attributes = [NSAttributedStringKey.font: font]
-            let boundingSize = CGSize(width: self.txtVEditor.frame.size.width - 10 - self.txtVEditor.textContainerInset.right - self.txtVEditor.textContainerInset.left, height: .greatestFiniteMagnitude)
+            let boundingSize = CGSize(width: self.txtVEditor.frame.size.width - self.txtVEditor.textContainerInset.right - self.txtVEditor.textContainerInset.left, height: .greatestFiniteMagnitude)
             let size = self.txtVEditor.text.boundingRect(with: boundingSize, options: NSStringDrawingOptions.usesLineFragmentOrigin, attributes: attributes, context: nil)
-            newHeight = ceil(size.height)
+            newHeight = size.height
         }
         
         if let font = txtVEditor.font, newHeight < font.lineHeight {
             newHeight = font.lineHeight
         }
         
-        return newHeight + txtVEditor.textContainerInset.top + txtVEditor.textContainerInset.bottom
+        return newHeight// + txtVEditor.textContainerInset.top + txtVEditor.textContainerInset.bottom
+        */
+        
+        let fixedWidth = self.txtVEditor.frame.size.width
+        self.txtVEditor.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+        let newSize = self.txtVEditor.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+        return ceil(newSize.height)
     }
     
     // update the hide value of the placeholder label

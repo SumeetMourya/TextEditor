@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "TextEditorDemo/Editor/ExpandingTextEditor.swift"
-            timestampString = "535269725.49886"
+            timestampString = "535527421.487076"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "359"
-            endingLineNumber = "359"
+            startingLineNumber = "404"
+            endingLineNumber = "404"
             landmarkName = "setHideCharacterLimit(value:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -26,12 +26,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "TextEditorDemo/Editor/ExpandingTextEditor.swift"
-            timestampString = "535269725.50042"
+            timestampString = "535527421.488159"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "271"
-            endingLineNumber = "271"
-            landmarkName = "roundHeight()"
+            startingLineNumber = "430"
+            endingLineNumber = "430"
+            landmarkName = "setNumberOfLines(lines:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
